@@ -1,8 +1,7 @@
 import React, {Component} from "react";
 import {Line} from 'react-chartjs-2';
 import moment from 'moment'
-import {colors} from "@material-ui/core";
-import {Input, Button} from "@material-ui/core";
+import {colors, TextField, Button} from "@material-ui/core";
 
 function generateData() {
     let unit = "second";
@@ -13,7 +12,7 @@ function generateData() {
         let open = randomNumber(lastClose * 0.95, lastClose * 1.05).toFixed(2);
         let close = randomNumber(open * 0.95, open * 1.05).toFixed(2);
         return {
-            t: date.valueOf(),
+            t: date.valueOf()/1000,
             y: close
         };
     }
@@ -113,16 +112,35 @@ class MyChart extends Component {
                 }
             },
             point1: '',
-            point2: ''
+            point2: '',
+            turn1: true,
+            area: ''
         }
     }
     render() {
         return(
             <div className="chart">
-                <Line width="600px" height="400px" data={this.state.data} options={this.state.options}/>
-                <Input value="hello" disabled/>
-                <Button variant="contained" color="primary">
-                    Primary
+                <Line width={200} height={100} data={this.state.data} options={this.state.options} 
+                getElementAtEvent={ elems => { if (elems.length > 0) {
+                    var clickedDatasetIndex = elems[0]._datasetIndex; //only 1 dataset, always 0, can delete
+                    var clickedElementindex = elems[0]._index;
+                    var time = this.state.data.datasets[clickedDatasetIndex].data[clickedElementindex].t;
+                    var electricity = this.state.data.datasets[clickedDatasetIndex].data[clickedElementindex].y; //same as  this.state.data.datasets[0].data[clickedElementindex].y
+                    console.log(clickedDatasetIndex)
+                    alert("Clicked: " + time + " - " + electricity);
+                    if (this.state.turn1) { this.setState({ turn1: false, point1: clickedElementindex})} //pass index to point
+                    else { this.setState({ turn1: true, point2: clickedElementindex})}
+                  } } }/>
+                <TextField value={this.state.point1} disabled/> {/*index of point1, refer line 128 to get value od electricity*/}
+                <br/>
+                <TextField value={this.state.point2} disabled/>  {/*index of point2*/}
+                <br/>
+                <TextField label="Area" value={this.state.area} disabled/>
+                <br/>
+                <Button variant="contained" color="primary" onClick={ ()=>{
+                    //calculate method
+                } }>
+                    Calculate
                 </Button>
             </div>
         )
