@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="f12752b0-b04b-4c07-8880-21808d59fdb0" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/MyChart.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/MyChart.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -20,8 +21,11 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.standard" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.standard" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.standard" value="" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -48,7 +52,8 @@
       <workItem from="1574167573178" duration="5597000" />
       <workItem from="1574179608791" duration="502000" />
       <workItem from="1574183265353" duration="105000" />
-      <workItem from="1574183393242" duration="263000" />
+      <workItem from="1574183393242" duration="3180000" />
+      <workItem from="1574228696428" duration="20187000" />
     </task>
     <servers />
   </component>

@@ -1,5 +1,4 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import MyChart from './components/MyChart'
 function App() {
@@ -11,5 +10,4 @@ function App() {
     </div>
   );
 }
-
 export default App;

@@ -1,8 +1,11 @@
 import React, {Component} from "react";
 import {Line} from 'react-chartjs-2';
 import moment from 'moment'
-import {colors, TextField, Button} from "@material-ui/core";
+import{TextField,Button} from "@material-ui/core"
+import {red, yellow} from "@material-ui/core/colors";
+import Grid from "@material-ui/core/Grid";
 
+//generate random data and time increases by second
 function generateData() {
     let unit = "second";
     function randomNumber(min, max) {
@@ -12,31 +15,33 @@ function generateData() {
         let open = randomNumber(lastClose * 0.95, lastClose * 1.05).toFixed(2);
         let close = randomNumber(open * 0.95, open * 1.05).toFixed(2);
         return {
-            t: date.valueOf()/1000,
+            t: date.valueOf(),
             y: close
         };
     }
-    let date = moment('Jan 01 2019', 'MMM DD YYYY');
+    let date = moment('Nov 01 2019', 'MMM DD YYYY');
     let data = [];
     for (; data.length < 600 ; date = date.clone().add(1, unit).startOf(unit)) {
         data.push(randomBar(date, data.length > 0 ? data[data.length - 1].y : 30));
     }
+    console.log(data)
     return data;
 }
 
+//define the chart
 class MyChart extends Component {
     constructor(props){
         super(props);
         this.state = {
             data: {
                 datasets: [{
-                    label: 'CHART - Chart.js Corporation',
-                    backgroundColor: colors.yellow,
-                    borderColor: colors.red,
+                    label: 'CHART1 - Chart.js Corporation',
+                    backgroundColor: yellow,
+                    borderColor: red,
                     data: generateData(),
                     type: 'line',
                     pointRadius: 0,
-                    fill: 'origin',
+                    fill: 'false',
                     lineTension: 0,
                     borderWidth: 2
                 }]
@@ -61,30 +66,6 @@ class MyChart extends Component {
                             maxRotation: 0,
                             sampleSize: 100
                         },
-                        // afterBuildTicks: function(scale) {
-                        //     var majorUnit = scale._majorUnit;
-                        //     var ticks = scale.ticks;
-                        //     var firstTick = ticks[0];
-                        //     var i, ilen, val, tick, currMajor, lastMajor;
-                        //     val = moment(ticks[0].value);
-                        //     if ((majorUnit === 'minute' && val.second() === 0)
-                        //         || (majorUnit === 'hour' && val.minute() === 0)
-                        //         || (majorUnit === 'day' && val.hour() === 9)
-                        //         || (majorUnit === 'month' && val.date() <= 3 && val.isoWeekday() === 1)
-                        //         || (majorUnit === 'year' && val.month() === 0)) {
-                        //         firstTick.major = true;
-                        //     } else {
-                        //         firstTick.major = false;
-                        //     }
-                        //     lastMajor = val.get(majorUnit);
-                        //     for (i = 1, ilen = ticks.length; i < ilen; i++) {
-                        //         tick = ticks[i];
-                        //         val = moment(tick.value);
-                        //         currMajor = val.get(majorUnit);
-                        //         tick.major = currMajor !== lastMajor;
-                        //         lastMajor = currMajor;
-                        //     }
-                        // }
                     }],
                     yAxes: [{
                         gridLines: {
@@ -92,7 +73,7 @@ class MyChart extends Component {
                         },
                         scaleLabel: {
                             display: true,
-                            labelString: 'Closing price ($)'
+                            labelString: 'Power (W)'
                         }
                     }]
                 },
@@ -101,7 +82,7 @@ class MyChart extends Component {
                     mode: 'index',
                     callbacks: {
                         label: function(tooltipItem, myData) {
-                            var label = myData.datasets[tooltipItem.datasetIndex].label || '';
+                            let label = myData.datasets[tooltipItem.datasetIndex].label || '';
                             if (label) {
                                 label += ': ';
                             }
@@ -117,34 +98,73 @@ class MyChart extends Component {
             area: ''
         }
     }
+//Do the math
+    calculateArea(){
+        let point1 = this.state.point1
+        let point2 = this.state.point2
+        if(this.state.data.datasets[0].data[point1].t > this.state.data.datasets[0].data[point2].t){
+            point1 = this.state.point2
+            point2 = this.state.point1
+        }
+        // Here we use Newton-Leibniz formula to calculate the integration
+        let Ya = this.state.data.datasets[0].data[point1].y
+        let Yb = this.state.data.datasets[0].data[point2].y
+        let s1 = 0
+        let s2 = 0
+        for(let i = 1; i<= (point2-point1)/2;i++){
+            let X = 2*(i) - 1
+            s1 += Number(this.state.data.datasets[0].data[X].y)
+        }
+        for(let i = 1; i<= (point2-point1)/2-1; i++){
+            let X = 2*(i)
+            s2 += Number(this.state.data.datasets[0].data[X].y)
+        }
+        let integrateArea = (Number(Ya) + Number(Yb) + s1 * 4 + s2 * 2) / 3
+        console.log(integrateArea)
+        this.setState({area:integrateArea.toFixed(2)})
+    }
+
+    setPoints(elements){
+        if(elements.length > 0) {
+            let clickedDatasetIndex = elements[0]._datasetIndex
+            let clickedElementIndex = elements[0]._index
+            let electricity = this.state.data.datasets[0].data[clickedElementIndex].y
+            console.log(clickedDatasetIndex)
+            console.log(clickedElementIndex)
+            alert("Power is  " + electricity + "W")
+            if(this.state.turn1){ this.setState({turn1:false, point1:clickedElementIndex})}
+            else{this.setState({turn1:true, point2:clickedElementIndex})}
+        }
+        else{
+            alert("You need to click on point!")
+        }
+    }
+
     render() {
         return(
             <div className="chart">
-                <Line width={200} height={100} data={this.state.data} options={this.state.options} 
-                getElementAtEvent={ elems => { if (elems.length > 0) {
-                    var clickedDatasetIndex = elems[0]._datasetIndex; //only 1 dataset, always 0, can delete
-                    var clickedElementindex = elems[0]._index;
-                    var time = this.state.data.datasets[clickedDatasetIndex].data[clickedElementindex].t;
-                    var electricity = this.state.data.datasets[clickedDatasetIndex].data[clickedElementindex].y; //same as  this.state.data.datasets[0].data[clickedElementindex].y
-                    console.log(clickedDatasetIndex)
-                    alert("Clicked: " + time + " - " + electricity);
-                    if (this.state.turn1) { this.setState({ turn1: false, point1: clickedElementindex})} //pass index to point
-                    else { this.setState({ turn1: true, point2: clickedElementindex})}
-                  } } }/>
-                <TextField value={this.state.point1} disabled/> {/*index of point1, refer line 128 to get value od electricity*/}
-                <br/>
-                <TextField value={this.state.point2} disabled/>  {/*index of point2*/}
-                <br/>
-                <TextField label="Area" value={this.state.area} disabled/>
-                <br/>
-                <Button variant="contained" color="primary" onClick={ ()=>{
-                    //calculate method
-                } }>
-                    Calculate
-                </Button>
+                <Line width={800} height={600} data={this.state.data} options={this.state.options}
+                      getElementAtEvent={ elements => {this.setPoints(elements)}}/>
+                <Grid container spacing={3}>
+                    <Grid item xs={6}>
+                        <TextField  value = {"Point1 Time is " + this.state.point1 + "s"} disabled>
+                        </TextField>
+                        <br/>
+                        <TextField  value = {"Point2 Time is " + this.state.point2 + "s"} disabled/>
+                        <br/>
+                        <TextField label="Total Energy" value={this.state.area} disabled/>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Button variant="contained" color="primary" onClick={ ()=>{
+                            this.calculateArea()
+                        }}>
+                            Calculate
+                        </Button>
+                    </Grid>
+                </Grid>
+
             </div>
         )
     }
 }
-
 export default MyChart;
