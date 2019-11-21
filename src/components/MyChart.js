@@ -45,17 +45,17 @@ class MyChart extends Component {
                     lineTension: 0,
                     borderWidth: 2
                 },
-                    {
-                        label: 'Selected',
-                        backgroundColor: "rgba(25,25,255,0.4)",
-                        hoverBorderColor: "rgba(255,99,132,1)",
-                        data: [],
-                        type: 'line',
-                        pointRadius: 0,
-                        fill: 'origin',
-                        lineTension: 0,
-                        borderWidth: 2
-                    }]
+                {
+                    label: 'Selected',
+                    backgroundColor: "rgba(25,25,255,0.4)",
+                    hoverBorderColor: "rgba(255,99,132,1)",
+                    data: [],
+                    type: 'line',
+                    pointRadius: 0,
+                    fill: 'origin',
+                    lineTension: 0,
+                    borderWidth: 2
+                }]
             },
             options: {
                 animation: {
@@ -119,7 +119,7 @@ class MyChart extends Component {
     calculateArea(){
         let point1 = this.state.point1
         let point2 = this.state.point2
-        if(point1 == '' || point2 == '') {
+        if(point1 === '' || point2 === '') {
             alert("Please select points!")
             return
         }
