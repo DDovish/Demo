@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {Line} from 'react-chartjs-2';
 import moment from 'moment'
 import{TextField,Button} from "@material-ui/core"
-import {red, yellow} from "@material-ui/core/colors";
 import Grid from "@material-ui/core/Grid";
 
 //generate random data and time increases by second
@@ -32,23 +31,38 @@ function generateData() {
 class MyChart extends Component {
     constructor(props){
         super(props);
+        let dataGenerated = generateData()
         this.state = {
             data: {
                 datasets: [{
                     label: 'CHART1 - Chart.js Corporation',
-                    backgroundColor: yellow,
-                    borderColor: red,
-                    data: generateData(),
+                    backgroundColor: "rgba(255,99,132,0.4)",
+                    hoverBorderColor: "rgba(255,99,132,1)",
+                    data: dataGenerated,
                     type: 'line',
                     pointRadius: 0,
                     fill: 'false',
                     lineTension: 0,
                     borderWidth: 2
-                }]
+                },
+                    {
+                        label: 'Selected',
+                        backgroundColor: "rgba(25,25,255,0.4)",
+                        hoverBorderColor: "rgba(255,99,132,1)",
+                        data: [],
+                        type: 'line',
+                        pointRadius: 0,
+                        fill: 'origin',
+                        lineTension: 0,
+                        borderWidth: 2
+                    }]
             },
             options: {
                 animation: {
                     duration: 0
+                },
+                legend: {
+                    onClick: (e) => e.stopPropagation()
                 },
                 scales: {
                     xAxes: [{
@@ -74,6 +88,9 @@ class MyChart extends Component {
                         scaleLabel: {
                             display: true,
                             labelString: 'Power (W)'
+                        },
+                        ticks: {
+                            beginAtZero: true
                         }
                     }]
                 },
@@ -102,6 +119,10 @@ class MyChart extends Component {
     calculateArea(){
         let point1 = this.state.point1
         let point2 = this.state.point2
+        if(point1 == '' || point2 == '') {
+            alert("Please select points!")
+            return
+        }
         if(this.state.data.datasets[0].data[point1].t > this.state.data.datasets[0].data[point2].t){
             point1 = this.state.point2
             point2 = this.state.point1
@@ -122,6 +143,14 @@ class MyChart extends Component {
         let integrateArea = (Number(Ya) + Number(Yb) + s1 * 4 + s2 * 2) / 3
         console.log(integrateArea)
         this.setState({area:integrateArea.toFixed(2)})
+
+        let oldDataset = this.state.data.datasets[0].data
+        let originDataset = {...this.state.data.datasets}
+        let newDataset = oldDataset.slice(0,point1).map(el => ({ t: el.t, y: 0})).concat(oldDataset.slice(point1,point2)).concat(oldDataset.slice(point2).map(el => ({ t: el.t, y: 0})))
+        originDataset[1].data = newDataset
+        this.setState({originDataset})
+        console.log(this.state.data.datasets[0])
+        console.log(this.state.data.datasets[1])
     }
 
     setPoints(elements){
@@ -146,15 +175,14 @@ class MyChart extends Component {
                 <Line width={800} height={600} data={this.state.data} options={this.state.options}
                       getElementAtEvent={ elements => {this.setPoints(elements)}}/>
                 <Grid container spacing={3}>
-                    <Grid item xs={6}>
-                        <TextField  value = {"Point1 Time is " + this.state.point1 + "s"} disabled>
-                        </TextField>
-                        <br/>
+                    <Grid item xs={4}>
+                        <TextField  value = {"Point1 Time is " + this.state.point1 + "s"} disabled/>
                         <TextField  value = {"Point2 Time is " + this.state.point2 + "s"} disabled/>
-                        <br/>
+                    </Grid>
+                    <Grid item xs={4}>
                         <TextField label="Total Energy" value={this.state.area} disabled/>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={4}>
                         <Button variant="contained" color="primary" onClick={ ()=>{
                             this.calculateArea()
                         }}>
